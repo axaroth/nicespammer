@@ -8,58 +8,58 @@ NiceSpammer? is a system to generate and send mails. It is modular and written i
 
 The system is composed of some popular python modules. The initial specifications was:
 
-  *Sender*
+*Sender*
 
     Must send mails only:
 
-      multithread/multiprocess
-      no template generation
-      minimal mail DB
-      scheduling
-      logging progress
-      status
+      * multithread/multiprocess
+      * no template generation
+      * minimal mail DB
+      * scheduling
+      * logging progress
+      * status
 
     -> maildrophost
 
-  *Mailer*
+*Mailer*
 
     Generate mails:
 
-      - Generate email from text and html (embed css, images...)
-      - Add receiver addresses from DB (csv file with 'email' column)
-      - cli 
+      * Generate email from text and html (embed css, images...)
+      * Add receiver addresses from DB (csv file with 'email' column)
+      * cli 
 
     -> reflab.newsletter.mailgenerator
 
-  *Authoring*
+*Authoring*
 
     Mail template: web generated or by hand.
 
-      - Generate configuration for Mailer
-      - Generate body in html and text format
+      * Generate configuration for Mailer
+      * Generate body in html and text format
 
     -> zope, plone, grok, django...
 
-  *Channel manager*
+*Channel manager*
    
     We think this feature must be provided through the web interface.
      
-      - Add channel
-      - Remove channel
+      * Add channel
+      * Remove channel
    
     -> none
 
-  *Users*
+*Users*
 
     Email/Subscriber manager: managed through the web interface, must generate a csv file with email address
 
-        - Add subscriber
-        - Remove subscriber
-        - List subscribers
+     * Add subscriber
+     * Remove subscriber
+     * List subscribers
 
     -> zope, plone, grok, django...
 
-  *Stats*
+*Stats*
 
       Stats manager: it trace who has open the newsletter with a link in the email (eg. a 1px image)
 
