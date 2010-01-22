@@ -1,0 +1,18 @@
+#summary How to install.
+
+= Introduction =
+
+Product is based on buildout and eggs
+
+= Details =
+
+{{{
+  $ svn checkout http://nicespammer.googlecode.com/svn/trunk/ nicespammer-read-only
+  $ cd nicespammer-read-only
+  $ python2.4 bootstrap.py
+  $ ./bin/buildout
+}}}
+
+Note:
+
+Tested with BeautifulSoup 3.0.4 and cssselector 0.9.6b1 (different versions raise strange errors and beaviors).
