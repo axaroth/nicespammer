@@ -2,7 +2,7 @@
 
 = Introduction =
 
-There are two typical way to use this products: single and periodic dispatch.
+There are two typical way to use this products: single and periodical dispatch.
 
 = Usage =
 
@@ -10,7 +10,7 @@ After installation you have a 'bin' directory containing these scrips:
 
     - generate
         take a directory containing the configuration to generate the mails for
-        maildrophost. The newsletter.cfg must containing the path to 'spool' 
+        maildrophost. The newsletter.cfg must containing the path to 'spool'
         directory of maildrophost instance.
 
       options:
@@ -19,8 +19,8 @@ After installation you have a 'bin' directory containing these scrips:
 
         -p, --purge  Remove emails
 
-        '-p' option is used to remove mails from the csv file, this is useful in case 
-        of  periodic dispatching to avoid to send again the mails.
+        '-p' option is used to remove mails from the csv file, this is useful in case
+        of  periodical dispatching to avoid to send again the mails.
 
     - maildrophost
         it is the daemon that send emails. The commands are: start, stop, restart.
@@ -29,10 +29,10 @@ After installation you have a 'bin' directory containing these scrips:
 
 Activate maildrophost then call 'generate /path/to/newsletter/configuration'
 
-== Periodic dispatch ==
+== Periodical dispatch ==
 
 Activate maildrophost then put 'generate -p /path/to/newsletter/configuration' in a crontab entry, for example:
-{{{ 
+{{{
 # m h  dom mon dow   command
 00 * * * * /srv/mailer/bin/generate --purge /tmp/a_newsletterconf/
 }}}
