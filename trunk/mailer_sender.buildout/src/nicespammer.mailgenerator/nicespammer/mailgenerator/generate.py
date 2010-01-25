@@ -20,20 +20,32 @@ class CommandGenerator(object):
         usage = "usage: %prog [options] directory"
         parser = OptionParser(usage=usage, description=self.description)
         parser.add_option(
-                "-p",
+                  "-p",
                   "--purge",
                   action="store_true",
                   dest="purge",
                   default=False,
                   help="Remove emails")
+        parser.add_option(
+                  "-f",
+                  "--force",
+                  dest="address",
+                  default=None,
+                  help="Send an email to specified address")
         (options, args) = parser.parse_args()
 
         if  len(args) != 1:
             parser.error("Missing newsletter directory.")
             sys.exit(-1)
 
+        if hasattr(options, 'address'):
+            # simple check
+            if '@' not in options.address:
+                parser.error("Invalid email address.")
+                sys.exit(-1)
+
         newsletter_path = args[0]
-        mg = MailGenerator(newsletter_path)
+        mg = MailGenerator(newsletter_path, options.address)
         mg.massive_send()
 
         if options.purge:

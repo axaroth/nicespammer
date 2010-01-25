@@ -20,8 +20,9 @@ def makeTempPath(spool):
 
 class MailGenerator(object):
 
-    def __init__(self, newsletter_path):
+    def __init__(self, newsletter_path, address=None):
         self.newsletter_path = newsletter_path
+        self.address = address
         self.parse_config()
 
     def parse_config(self):
@@ -93,7 +94,10 @@ class MailGenerator(object):
         csv_file = open(self.csv_file_path, 'rt')
 
         mfrom = '##From:%s\n'%self.config.get('default', 'mfrom')
-        users = csv.DictReader(csv_file)
+        if self.address is None:
+            users = csv.DictReader(csv_file)
+        else:
+            users = [dict(mail=self.address),]
 
         for user in users:
             mail  = '##To:%s\n'%user['mail']
