@@ -15,12 +15,14 @@ After installation you have a 'bin' directory containing these scrips:
 
       options:
 
-        -h, --help   show this help message and exit
+        -h, --help   Show this help message and exit
 
         -p, --purge  Remove emails
 
-        '-p' option is used to remove mails from the csv file, this is useful in case
-        of  periodical dispatching to avoid to send again the mails.
+        -f <address> --force <address>  Generate mail to specified address
+
+        '-p' option is used to remove mails from the csv file, this is useful in
+        case of  periodical dispatching to avoid to send again the mails.
 
     - maildrophost
         it is the daemon that send emails. The commands are: start, stop, restart.
