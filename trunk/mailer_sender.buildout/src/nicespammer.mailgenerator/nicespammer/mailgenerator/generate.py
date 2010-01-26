@@ -27,18 +27,25 @@ class CommandGenerator(object):
                   default=False,
                   help="Remove emails")
         parser.add_option(
-                  "-f",
-                  "--force",
+                  "-a",
+                  "--address",
                   dest="address",
                   default=None,
-                  help="Send an email to specified address")
+                  help="Generate an email for specified address")
+        #parser.add_option(
+                  #"-f",
+                  #"--force",
+                  #action="store_true",
+                  #dest="force",
+                  #default=False,
+                  #help="Generate emails")
         (options, args) = parser.parse_args()
 
         if  len(args) != 1:
             parser.error("Missing newsletter directory.")
             sys.exit(-1)
 
-        if hasattr(options, 'address'):
+        if options.address is not None:
             # simple check
             if '@' not in options.address:
                 parser.error("Invalid email address.")
