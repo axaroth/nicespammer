@@ -15,17 +15,62 @@ After installation you have a 'bin' directory containing these scrips:
 
       options:
 
-        -h, --help   Show this help message and exit
+        -h, --help
+
+            Show this help message and exit
+
+        -a <address> --address <address>
+
+            Generate mail to specified address
+
+        - f --force Force generation of mails
+
+            Override control on generated.info file)
 
         -p, --purge  Remove emails
 
-        -f <address> --force <address>  Generate mail to specified address
-
-        '-p' option is used to remove mails from the csv file, this is useful in
-        case of  periodical dispatching to avoid to send again the mails.
+            This option is used to remove mails from the csv file, this is useful
+            in case of periodical dispatching to avoid to send again the mails.
+            (with date and generated.info file this option is obsolete)
 
     - maildrophost
         it is the daemon that send emails. The commands are: start, stop, restart.
+
+== Configuration file ==
+
+The newsletter folder must contain a 'newsletter.cfg' file. The file is a
+configuration file (same as INI files), for example:
+
+{{
+    [default]
+    mfrom = riccardo@reflab.it
+    subject = Newsletter Test.
+    txt = mail_body.txt
+    html = newsletter_path.html
+    spool = /tmp/kde-axa
+    mails = mails.csv
+    date = 2010/01/27 13:00
+}}
+
+where:
+
+  mfrom: mail from address
+
+  subject: the subject of the mail
+
+  txt: the file containing the text version
+
+  html: the file containing the html version
+
+  spool: the path to the spool directory of maildrophost
+
+  mails: a csv file with the mail of the users (must have a 'mail' column)
+
+  date: the date when the newsletter mails must be generate (optional)
+
+    After generation a file 'generated.info' is created in the folder and the
+    presence will be checked each time the generate script is called on this
+    folder.
 
 == Single dispatch ==
 
@@ -34,7 +79,10 @@ Activate maildrophost then call 'generate /path/to/newsletter/configuration'
 == Periodical dispatch ==
 
 Activate maildrophost then put 'generate -p /path/to/newsletter/configuration' in a crontab entry, for example:
+
 {{{
 # m h  dom mon dow   command
 00 * * * * /srv/mailer/bin/generate --purge /tmp/a_newsletterconf/
 }}}
+
+or configure 'date' in newsletter.cfg and remove the --purge option.
