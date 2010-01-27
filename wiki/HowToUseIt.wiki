@@ -8,7 +8,8 @@ There are two typical way to use this products: single and periodical dispatch.
 
 After installation you have a 'bin' directory containing these scrips:
 
-    - generate
+  * generate
+
         take a directory containing the configuration to generate the mails for
         maildrophost. The newsletter.cfg must containing the path to 'spool'
         directory of maildrophost instance.
@@ -19,13 +20,13 @@ After installation you have a 'bin' directory containing these scrips:
 
             Show this help message and exit
 
-        -a <address> --address <address>
+        -a {{{<address>}}}, --address {{{<address>}}}
 
             Generate mail to specified address
 
-        - f --force Force generation of mails
+        -f, --force 
 
-            Override control on generated.info file)
+            Force generation of mails. Override control on generated.info file
 
         -p, --purge  Remove emails
 
@@ -33,7 +34,8 @@ After installation you have a 'bin' directory containing these scrips:
             in case of periodical dispatching to avoid to send again the mails.
             (with date and generated.info file this option is obsolete)
 
-    - maildrophost
+  * maildrophost
+
         it is the daemon that send emails. The commands are: start, stop, restart.
 
 == Configuration file ==
@@ -41,7 +43,7 @@ After installation you have a 'bin' directory containing these scrips:
 The newsletter folder must contain a 'newsletter.cfg' file. The file is a
 configuration file (same as INI files), for example:
 
-{{
+{{{
     [default]
     mfrom = riccardo@reflab.it
     subject = Newsletter Test.
@@ -50,7 +52,7 @@ configuration file (same as INI files), for example:
     spool = /tmp/kde-axa
     mails = mails.csv
     date = 2010/01/27 13:00
-}}
+}}}
 
 where:
 
