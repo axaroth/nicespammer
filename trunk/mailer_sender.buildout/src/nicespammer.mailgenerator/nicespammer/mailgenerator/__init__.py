@@ -1,5 +1,6 @@
 import os
 import csv
+import time
 import tempfile
 import ConfigParser
 from random import randint
@@ -20,9 +21,9 @@ def makeTempPath(spool):
 
 class MailGenerator(object):
 
-    def __init__(self, newsletter_path, address=None):
+    def __init__(self, newsletter_path):
         self.newsletter_path = newsletter_path
-        self.address = address
+        self.generated_path = os.path.join(self.newsletter_path, 'generated.info')
         self.parse_config()
 
     def parse_config(self):
@@ -86,25 +87,63 @@ class MailGenerator(object):
 
         os.unlink(lock_path)
 
-    def massive_send(self):
+    def _generate(self, address=None):
         """ Read the csv file containing the email addresses, render template,
             send the mails to spool
         """
-        mail_template = unicode(self.generate_mail())
-        csv_file = open(self.csv_file_path, 'rt')
-
-        mfrom = '##From:%s\n'%self.config.get('default', 'mfrom')
-        if self.address is None:
+        if address is None:
+            csv_file = open(self.csv_file_path, 'rt')
             users = csv.DictReader(csv_file)
         else:
-            users = [dict(mail=self.address),]
+            users = [dict(mail=address),]
 
+        mail_template = unicode(self.generate_mail())
+        mfrom = '##From:%s\n'%self.config.get('default', 'mfrom')
         for user in users:
             mail  = '##To:%s\n'%user['mail']
             mail += mfrom
             mail += mail_template.replace('$newsletter_to_addr', user['mail'])
             self.send_to_spool(mail)
 
+    def generate_single_mail(self, address):
+        """  """
+        self._generate(address)
+        self.log_generation('single')
+
+    def generate(self):
+        """ """
+        self._generate()
+        self.log_generation('forced')
+
+    def generated(self):
+        """ """
+        f = open(self.generated_path, 'w')
+        f.write(time.strftime('%Y/%m/%d %H:%M'))
+        f.close()
+
+    def just_generated(self):
+        return os.path.exists(self.generated_path)
+
+    def check_and_generate(self):
+        """ """
+        if self.just_generated():
+            self.log_generation('just generated')
+        else:
+            if not self.config.has_option('default', 'date'):
+                date = time.strftime('%Y/%m/%d %H:%M') #?
+            else:
+                date = self.config.get('default', 'date')
+
+            if date <= time.strftime('%Y/%m/%d %H:%M'):
+                self._generate()
+                self.generated() # before generate?
+                self.log_generation('normal')
+            else:
+                self.log_generation('waiting')
+
+
+    def log_generation(self, msg):
+        print msg, time.strftime('%Y/%m/%d %H:%M')
 
 def testing():
     # .../mypython __init__.py

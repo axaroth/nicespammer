@@ -31,14 +31,14 @@ class CommandGenerator(object):
                   "--address",
                   dest="address",
                   default=None,
-                  help="Generate an email for specified address")
-        #parser.add_option(
-                  #"-f",
-                  #"--force",
-                  #action="store_true",
-                  #dest="force",
-                  #default=False,
-                  #help="Generate emails")
+                  help="Generate an email for specified address (imply -f)")
+        parser.add_option(
+                  "-f",
+                  "--force",
+                  action="store_true",
+                  dest="force",
+                  default=False,
+                  help="Generate emails now")
         (options, args) = parser.parse_args()
 
         if  len(args) != 1:
@@ -52,8 +52,14 @@ class CommandGenerator(object):
                 sys.exit(-1)
 
         newsletter_path = args[0]
-        mg = MailGenerator(newsletter_path, options.address)
-        mg.massive_send()
+        mg = MailGenerator(newsletter_path)
+
+        if options.address is not None:
+            mg.generate_single_mail(options.address)
+        elif options.force:
+            mg.generate()
+        else:
+            mg.check_and_generate()
 
         if options.purge:
             src = mg.csv_file_path
