@@ -5,6 +5,7 @@ import tempfile
 import ConfigParser
 from random import randint
 import stoneagehtml
+import logging
 
 from iw.email import MultipartMail
 
@@ -24,6 +25,12 @@ class MailGenerator(object):
     def __init__(self, newsletter_path):
         self.newsletter_path = newsletter_path
         self.generated_path = os.path.join(self.newsletter_path, 'generated.info')
+
+        self.log_path = os.path.join(self.newsletter_path, 'newsletter.log')
+        logging.basicConfig(filename=self.log_path,
+                            level=logging.DEBUG,
+                            format="%(asctime)s - %(levelname)s - %(message)s")
+
         self.parse_config()
 
     def parse_config(self):
@@ -108,12 +115,12 @@ class MailGenerator(object):
     def generate_single_mail(self, address):
         """  """
         self._generate(address)
-        self.log_generation('single')
+        logging.info('Single generation: %s'%address)
 
     def generate(self):
         """ """
         self._generate()
-        self.log_generation('forced')
+        logging.info('Forced generation.')
 
     def generated(self):
         """ """
@@ -127,7 +134,7 @@ class MailGenerator(object):
     def check_and_generate(self):
         """ """
         if self.just_generated():
-            self.log_generation('just generated')
+            logging.info('Just generated.')
         else:
             if not self.config.has_option('default', 'date'):
                 date = time.strftime('%Y/%m/%d %H:%M') #?
@@ -137,13 +144,10 @@ class MailGenerator(object):
             if date <= time.strftime('%Y/%m/%d %H:%M'):
                 self._generate()
                 self.generated() # before generate?
-                self.log_generation('normal')
+                logging.info('Default generation.')
             else:
-                self.log_generation('waiting')
+                logging.info('Waiting for date.')
 
-
-    def log_generation(self, msg):
-        print msg, time.strftime('%Y/%m/%d %H:%M')
 
 def testing():
     # .../mypython __init__.py
