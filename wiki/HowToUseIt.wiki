@@ -24,9 +24,13 @@ After installation you have a 'bin' directory containing these scrips:
 
             Generate mail to specified address
 
-        -f, --force 
+        -f, --force
 
             Force generation of mails. Override control on generated.info file
+
+        -c, --container
+
+            Treat the path as a container of newsletter configurations.
 
         -p, --purge  Remove emails
 
