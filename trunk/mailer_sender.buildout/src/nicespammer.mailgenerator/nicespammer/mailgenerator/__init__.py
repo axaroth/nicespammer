@@ -41,7 +41,8 @@ class MailGenerator(object):
         config_file.close()
 
         # must be present a column named 'mail'
-        self.csv_file_path = os.path.join(self.newsletter_path, self.config.get('default', 'mails'))
+        self.csv_file_path = os.path.join(self.newsletter_path,
+                                          self.config.get('default', 'mails'))
 
     def generate_mail(self):
         """ Generate a template email """
@@ -136,12 +137,13 @@ class MailGenerator(object):
         if self.just_generated():
             logging.info('Just generated.')
         else:
+            now = time.strftime('%Y/%m/%d %H:%M')
             if not self.config.has_option('default', 'date'):
-                date = time.strftime('%Y/%m/%d %H:%M') #?
+                date = now
             else:
                 date = self.config.get('default', 'date')
 
-            if date <= time.strftime('%Y/%m/%d %H:%M'):
+            if date <= now:
                 self._generate()
                 self.generated() # before generate?
                 logging.info('Default generation.')
