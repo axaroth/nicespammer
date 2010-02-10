@@ -63,13 +63,13 @@ class CommandGenerator(object):
 
         if  len(args) != 1:
             parser.error("Missing newsletter directory.")
-            sys.exit(-1)
+            return -1
 
         if options.address is not None:
             # simple check
             if '@' not in options.address:
                 parser.error("Invalid email address.")
-                sys.exit(-1)
+                return -1
 
         path = args[0]
         if options.isContainer == True:
