@@ -25,8 +25,13 @@ setup(name='nicespammer.statistics',
       install_requires=[
           'setuptools',
           # -*- Extra requirements: -*-
+          'Paste',
+          'PasteDeploy',
+          'PasteScript',
       ],
-      entry_points="""
-      # -*- Entry points: -*-
-      """,
+      entry_points={
+        'console_scripts': [
+            "catcher = nicespammer.statistics.catcher:main",
+            ]
+        },
       )

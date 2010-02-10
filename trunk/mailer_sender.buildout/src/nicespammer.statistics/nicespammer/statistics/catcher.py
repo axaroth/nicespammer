@@ -1,5 +1,9 @@
 # wsgi catcher
+import sys
+import os
+import ConfigParser
 
+from paste import httpserver
 from paste.request import parse_formvars
 from paste.response import HeaderDict
 from paste.httpexceptions import HTTPNotFound
@@ -42,9 +46,22 @@ def app_factory(global_config=None, **local_conf):
     app = Catcher(local_conf['filename'])
     return app
 
+def main():
+    """ """
+    config_file = open(os.path.join(sys.argv[1]))
+    config = ConfigParser.ConfigParser()
+    config.readfp(config_file)
+    config_file.close()
+
+    httpserver.serve(
+        app_factory(
+            None,
+            filename=config.get('default', 'filename')
+            ),
+        host=config.get('default', 'host'),
+        port=config.get('default', 'port')
+        )
+    sys.exit(0)
+
 if __name__ == '__main__':
-    from paste import httpserver
-    httpserver.serve(app_factory(None,
-                                 filename='example.db'),
-                                 host='127.0.0.1',
-                                 port='8080')
+    main()
