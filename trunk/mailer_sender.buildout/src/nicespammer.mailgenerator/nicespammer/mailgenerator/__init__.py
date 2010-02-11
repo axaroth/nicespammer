@@ -8,6 +8,7 @@ import stoneagehtml
 import logging
 
 from iw.email import MultipartMail
+from nicespammer.statistics import stats
 
 def makeTempPath(spool):
     """ Helper to create a temp file name safely """
@@ -26,14 +27,17 @@ class MailGenerator(object):
         self.newsletter_path = newsletter_path
         self.generated_path = os.path.join(self.newsletter_path, 'generated.info')
 
+        self.setup_logs()
+        self.parse_newsletter_conf()
+        self.parse_mailgenerator_conf()
+
+    def setup_logs(self):
         self.log_path = os.path.join(self.newsletter_path, 'newsletter.log')
         logging.basicConfig(filename=self.log_path,
                             level=logging.DEBUG,
                             format="%(asctime)s - %(levelname)s - %(message)s")
 
-        self.parse_config()
-
-    def parse_config(self):
+    def parse_newsletter_conf(self):
         """ Parse configuration file named newsletter.cfg in newsletter folder """
         config_file = open(os.path.join(self.newsletter_path, 'newsletter.cfg'))
         self.config = ConfigParser.ConfigParser()
@@ -43,6 +47,17 @@ class MailGenerator(object):
         # must be present a column named 'mail'
         self.csv_file_path = os.path.join(self.newsletter_path,
                                           self.config.get('default', 'mails'))
+
+    def parse_mailgenerator_conf(self):
+        """ read the path to DB """
+        # FIXME: better explicit path
+        config_file = open(os.path.join(os.getcwd(), 'nicespammer.cfg'))
+        self.mailgenerator_config = ConfigParser.ConfigParser()
+        self.mailgenerator_config.readfp(config_file)
+        config_file.close()
+
+        self.db_path = self.mailgenerator_config.get('default', 'filename')
+        self.catcher_url = self.mailgenerator_config.get('default', 'catcher_url')
 
     def generate_mail(self):
         """ Generate a template email """
@@ -62,6 +77,46 @@ class MailGenerator(object):
             html_path = self.config.get('default', 'html', None)
             html = open(os.path.join(self.newsletter_path, html_path), 'r').read()
             html_mail = stoneagehtml.compactify(html).decode('utf-8')
+        else:
+            html_mail = None
+
+        if txt_mail is None and html_mail is None:
+            txt_mail = 'No body'
+
+        mail = MultipartMail(
+                  text=txt_mail,
+                  html=html_mail,
+                  mfrom=mfrom,
+                  mto=mto,
+                  subject=subject)
+
+        return mail
+
+    def generate_mail_with_stats(self, newsletter, email):
+        """ """
+        s =  stats.Stats(self.db_path, self.catcher_url)
+        email_id = s.addEmail(email)
+        newsletter_id = s.getNewsletterId(newsletter)
+        if newsletter_id is None:
+            newsletter_id = s.addNewsletter(newsletter)
+        s.bindMail(email_id, newsletter_id)
+
+        mfrom = self.config.get('default', 'mfrom')
+        mto = '$newsletter_to_addr'
+        subject = unicode(self.config.get('default', 'subject'), 'utf-8')
+
+        if self.config.has_option('default', 'txt'):
+            txt_path = self.config.get('default', 'txt')
+            txt = open(os.path.join(self.newsletter_path, txt_path), 'r').read()
+            txt_mail = unicode(txt, 'utf-8')
+        else:
+            txt_mail = None
+
+        if self.config.has_option('default', 'html'):
+            html_path = self.config.get('default', 'html', None)
+            html = open(os.path.join(self.newsletter_path, html_path), 'r').read()
+            html_mail = stoneagehtml.compactify(html).decode('utf-8')
+            html_mail = s.addImage(html_mail, newsletter_id, email_id)
         else:
             html_mail = None
 
@@ -105,12 +160,22 @@ class MailGenerator(object):
         else:
             users = [dict(mail=address),]
 
-        mail_template = unicode(self.generate_mail())
+        add_stats = self.config.get('default', 'stats', False)
+        if not add_stats:
+            mail_template = unicode(self.generate_mail())
+        else:
+            newsletter = self.config.get('default', 'newsletter-name')
+
         mfrom = '##From:%s\n'%self.config.get('default', 'mfrom')
+
         for user in users:
-            mail  = '##To:%s\n'%user['mail']
+            email = user['mail']
+            if add_stats:
+                mail_template = unicode(self.generate_mail_with_stats(newsletter, email))
+
+            mail  = '##To:%s\n'%email
             mail += mfrom
-            mail += mail_template.replace('$newsletter_to_addr', user['mail'])
+            mail += mail_template.replace('$newsletter_to_addr', email)
             self.send_to_spool(mail)
 
     def generate_single_mail(self, address):
