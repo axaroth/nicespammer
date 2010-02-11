@@ -42,6 +42,11 @@ class AddingTestCase(BaseTestCase):
         self.s.bindMail(email_id, newsletter_id)
         self.failUnless(newsletter_id in self.s.getNewsletterIds(email_id))
 
+        # checks binding cases
+        self.failUnlessRaises(Exception, self.s.bindMail, '2', newsletter_id)
+        self.failUnlessRaises(Exception, self.s.bindMail, email_id, '2')
+        self.failUnlessRaises(Exception, self.s.bindMail, email_id, newsletter_id)
+
         # another newsletter
         newsletter_id = self.s.addNewsletter('another newsletter')
         self.s.bindMail(email_id, newsletter_id)

@@ -99,8 +99,28 @@ class Stats(object):
         else:
             return True
 
+    def existsBinding(self, newsletter_id, email_id):
+        self.cursor.execute('''
+            select *
+            from bindings
+            where newsletter_id=? and email_id=?''',
+            (newsletter_id,email_id))
+
+        if self.cursor.fetchone() is None:
+            return False
+        else:
+            return True
+
     def bindMail(self, email_id, newsletter_id):
-        # missing tests, avoid duplicated bind
+        if not self.existsNewsletterId(newsletter_id):
+            raise Exception('invalid newsletter')
+
+        if not self.existsEmailId(email_id):
+            raise Exception('invalid email')
+
+        if self.existsBinding(newsletter_id, email_id):
+            raise Exception('just bound')
+
         self.cursor.execute('''
             insert into bindings values (?,?)''',
             (newsletter_id, email_id))
@@ -133,7 +153,7 @@ class Stats(object):
             raise Exception('invalid email')
 
         if not newsletter_id in self.getNewsletterIds(email_id):
-            raise Exception('email not binded to newsletter')
+            raise Exception('email not bound to newsletter')
 
         if self.clicksFor(newsletter_id, email_id) == 0:
             self.cursor.execute('''
