@@ -58,8 +58,8 @@ def main():
             None,
             filename=config.get('default', 'filename')
             ),
-        host=config.get('default', 'host'),
-        port=config.get('default', 'port')
+        host=config.get('catcher', 'host'),
+        port=config.get('catcher', 'port')
         )
     sys.exit(0)
 
