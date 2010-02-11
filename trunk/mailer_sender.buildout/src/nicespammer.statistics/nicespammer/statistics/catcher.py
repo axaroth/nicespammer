@@ -9,6 +9,7 @@ from paste.response import HeaderDict
 from paste.httpexceptions import HTTPNotFound
 
 from nicespammer.statistics import stats
+import nicespammer.statistics as PACKAGE_PATH
 
 class Catcher(object):
 
@@ -30,16 +31,16 @@ class Catcher(object):
         return self.image()
 
     def click(self, uri):
-        newsletter_id = uri[1]
-        email_id = uri[2]
+        newsletter_id = int(uri[1])
+        email_id = int(uri[2])
         s = stats.Stats(self.filename)
         s.click(newsletter_id, email_id)
 
     def image(self):
-          f = open('1.png')
-          img = f.read()
-          f.close()
-          return img
+        f = open(os.path.join(PACKAGE_PATH.__path__[0], '1.png'))
+        img = f.read()
+        f.close()
+        return img
 
 
 def app_factory(global_config=None, **local_conf):
