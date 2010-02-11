@@ -1,11 +1,12 @@
 import time
-from pysqlite2 import dbapi2 as sqlite3 
+from pysqlite2 import dbapi2 as sqlite3
 
 class Stats(object):
 
-    def __init__(self, path='./example.db'):
+    def __init__(self, path='./example.db', catcher_url='http://localhost:8080'):
           self.conn = sqlite3.connect(path)
           self.cursor = self.conn.cursor()
+          self.catcher_url = catcher_url
 
     def getEmailId(self, email):
         self.cursor.execute('''
@@ -99,19 +100,20 @@ class Stats(object):
             return True
 
     def bindMail(self, email_id, newsletter_id):
+        # missing tests, avoid duplicated bind
         self.cursor.execute('''
             insert into bindings values (?,?)''',
             (newsletter_id, email_id))
         self.conn.commit()
 
-    def image_tag(self, host, newsletter_id, email_id):
-        return """<img alt="" src="%s/stats/%s/%s/1.png" width=1 height=1>"""% \
-            (host, newsletter_id, email_id)
+    def image_tag(self, newsletter_id, email_id):
+        return """<img alt="" src="%s/%s/%s/1.png" width=1 height=1>"""% \
+            (self.catcher_url, newsletter_id, email_id)
 
     def addImage(self, html, newsletter_id, email_id):
-        end_tag_pos = html.index('</html>')
+        end_tag_pos = html.index('</body>')
         tmp = html[:end_tag_pos]
-        tmp += self.image_tag('host', newsletter_id, email_id)
+        tmp += self.image_tag(newsletter_id, email_id)
         tmp += html[end_tag_pos:]
         return tmp
 

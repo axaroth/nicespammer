@@ -73,7 +73,7 @@ class StatsTestCase(BaseTestCase):
         email_id = self.s.getEmailId('riccardo@reflab.it')
         newsletter_id = self.s.getNewsletterId('a newsletter')
 
-        base = "<html> ... </html>"
+        base = "<html><body> ...</body></html>"
         html = self.s.addImage(base, newsletter_id, email_id)
         self.failUnless(str(newsletter_id) in html)
         self.failUnless(str(email_id) in html)
