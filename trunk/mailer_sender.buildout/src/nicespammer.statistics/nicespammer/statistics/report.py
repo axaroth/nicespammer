@@ -111,7 +111,7 @@ class Reports(object):
         newsletters = {}
         for id in newsletter_ids.keys():
             self.s.cursor.execute('''
-                select email_id
+                select email_id, date
                 from clicks
                 where newsletter_id=?''',
                 (id,))
@@ -121,7 +121,11 @@ class Reports(object):
                 newsletters[name] = []
                 for r in results:
                     email = self.s.getEmail(r[0])
-                    newsletters[name].append(email)
+                    date = r[1]
+                    newsletters[name].append({
+                        'email':email,
+                        'date':date,
+                        })
 
         return newsletters
 
