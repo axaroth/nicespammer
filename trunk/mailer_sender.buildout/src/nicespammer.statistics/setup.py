@@ -28,6 +28,7 @@ setup(name='nicespammer.statistics',
           'Paste',
           'PasteDeploy',
           'PasteScript',
+          'pysqlite',
       ],
       entry_points={
         'console_scripts': [
