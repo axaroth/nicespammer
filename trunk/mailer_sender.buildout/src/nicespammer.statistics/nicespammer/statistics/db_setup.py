@@ -29,5 +29,8 @@ def creation(path='./example.db'):
     c.close()
 
 
-if __name__=='__main__':
+def main():
     creation(sys.argv[1])
+    
+if __name__=='__main__':
+    main()

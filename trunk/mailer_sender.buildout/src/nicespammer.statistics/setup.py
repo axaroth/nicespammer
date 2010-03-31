@@ -33,6 +33,7 @@ setup(name='nicespammer.statistics',
       entry_points={
         'console_scripts': [
             "catcher = nicespammer.statistics.catcher:main",
+            "nicespammer_db_setup = nicespammer.statistics.db_setup:main",
             ]
         },
       )
