@@ -23,10 +23,11 @@ def makeTempPath(spool):
 
 class MailGenerator(object):
 
-    def __init__(self, newsletter_path):
+    def __init__(self, newsletter_path, options_file='nicespammer.cfg'):
         self.newsletter_path = newsletter_path
         self.generated_path = os.path.join(self.newsletter_path, 'generated.info')
-
+        self.options_file = options_file 
+        
         self.setup_logs()
         self.parse_newsletter_conf()
         self.parse_mailgenerator_conf()
@@ -50,8 +51,7 @@ class MailGenerator(object):
 
     def parse_mailgenerator_conf(self):
         """ read the path to DB """
-        # FIXME: better explicit path
-        config_file = open(os.path.join(os.getcwd(), 'nicespammer.cfg'))
+        config_file = open(self.options_file, 'r')
         self.mailgenerator_config = ConfigParser.ConfigParser()
         self.mailgenerator_config.readfp(config_file)
         config_file.close()

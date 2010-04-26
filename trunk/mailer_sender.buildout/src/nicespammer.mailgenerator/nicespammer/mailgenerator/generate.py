@@ -59,9 +59,16 @@ class CommandGenerator(object):
                   dest="isContainer",
                   default=False,
                   help="The path is to a container of newsletter configurations")
+        parser.add_option(
+                  "-o",
+                  "--options",
+                  dest="options_file",
+                  default='nicespammer.cfg',
+                  help="The path is to nicespammer options file")
+
         (options, args) = parser.parse_args()
 
-        if  len(args) != 1:
+        if  len(args) < 1:
             parser.error("Missing newsletter directory.")
             return -1
 
@@ -81,7 +88,7 @@ class CommandGenerator(object):
 
             print "Go for: ", newsletter_path
 
-            mg = MailGenerator(newsletter_path)
+            mg = MailGenerator(newsletter_path, options.options_file)
 
             if options.address is not None:
                 mg.generate_single_mail(options.address)
