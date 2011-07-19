@@ -6,6 +6,7 @@ import ConfigParser
 from random import randint
 import stoneagehtml
 import logging
+from string import Template
 
 from iw.email import MultipartMail
 from nicespammer.statistics import stats
@@ -26,8 +27,8 @@ class MailGenerator(object):
     def __init__(self, newsletter_path, options_file='nicespammer.cfg'):
         self.newsletter_path = newsletter_path
         self.generated_path = os.path.join(self.newsletter_path, 'generated.info')
-        self.options_file = options_file 
-        
+        self.options_file = options_file
+
         self.setup_logs()
         self.parse_newsletter_conf()
         self.parse_mailgenerator_conf()
@@ -160,7 +161,11 @@ class MailGenerator(object):
         else:
             users = [dict(mail=address),]
 
-        add_stats = self.config.get('default', 'stats', False)
+        if self.config.has_option('default', 'stats'):
+            add_stats = self.config.getboolean('default', 'stats')
+        else:
+            add_stats = False
+
         if not add_stats:
             mail_template = unicode(self.generate_mail())
         else:
@@ -175,7 +180,12 @@ class MailGenerator(object):
 
             mail  = '##To:%s\n'%email
             mail += mfrom
-            mail += mail_template.replace('$newsletter_to_addr', email)
+
+            #mail += mail_template.replace('$newsletter_to_addr', email)
+            mail += Template(mail_template).safe_substitute(
+                      newsletter_to_addr=email,
+                      **user)
+
             self.send_to_spool(mail)
 
     def generate_single_mail(self, address):
