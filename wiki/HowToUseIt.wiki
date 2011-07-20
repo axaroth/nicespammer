@@ -10,11 +10,11 @@ After installation you have a 'bin' directory containing these scrips:
 
   * generate
 
-        take a directory containing the configuration to generate the mails for
+        Take a directory containing the configuration to generate the mails for
         maildrophost. The newsletter.cfg must containing the path to 'spool'
         directory of maildrophost instance.
 
-      options:
+      Options:
 
         -h, --help
 
@@ -40,7 +40,16 @@ After installation you have a 'bin' directory containing these scrips:
 
   * maildrophost
 
-        it is the daemon that send emails. The commands are: start, stop, restart.
+        It is the daemon that send emails. The commands are: start, stop, restart.
+
+  * catcher
+
+        It is a wsgi service. It takes the http request about the image, extracts
+        the newsletter id and email id, update the database.
+
+  * nicespammer_db_setup
+
+        It generates the sqlie DB for stats. It takes the path to the file.
 
 == Configuration file ==
 
@@ -56,6 +65,8 @@ configuration file (same as INI files), for example:
     spool = /tmp/kde-axa
     mails = mails.csv
     date = 2010/01/27 13:00
+    stats = True
+    newsletter-name = alphanum             (required if stats==True)
 }}}
 
 where:
@@ -78,13 +89,23 @@ where:
     presence will be checked each time the generate script is called on this
     folder.
 
+  stats: activate the statistics  (todo)
+
+    Default: False  and it is not required.
+
+  newsletter-name: the name of the newsletter (todo)
+
+    Must be unique in the DB, it is required if 'stats' is True
+
+
 == Single dispatch ==
 
 Activate maildrophost then call 'generate /path/to/newsletter/configuration'
 
 == Periodical dispatch ==
 
-Activate maildrophost then put 'generate -p /path/to/newsletter/configuration' in a crontab entry, for example:
+Activate maildrophost then put 'generate -p /path/to/newsletter/configuration'
+in a crontab entry, for example:
 
 {{{
 # m h  dom mon dow   command
@@ -92,3 +113,37 @@ Activate maildrophost then put 'generate -p /path/to/newsletter/configuration' i
 }}}
 
 or configure 'date' in newsletter.cfg and remove the --purge option.
+
+== How to use statistic module ==
+
+Create the DB with the command:
+
+  $ ./bin/nicespammer_db_setup newsletters.db
+
+then activate the module adding the variables in the newsletter configuration:
+
+  [default]
+  ...
+  stats = True
+  newsletter-name = my newsletter
+  ...
+
+Before start the wsgi service (catcher) add the DB path in the nicespammer
+configuration file:
+
+    [default]
+    ...
+    filename = ./newsletter.db
+    ...
+
+
+and fix the url used in the generated emails:
+
+    catcher_url = http://a.serv.er/
+
+    Note: the catcher url can be server through Apache and differ from the
+      host/port parameters.
+
+then you can start the server:
+
+    $ ./bin/catcher nicespammer.cfg
