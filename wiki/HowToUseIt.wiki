@@ -147,3 +147,15 @@ and fix the url used in the generated emails:
 then you can start the server:
 
     $ ./bin/catcher nicespammer.cfg
+
+
+== Mail Template ==
+
+You can add some mark in the template using the $ notation. The data are read
+from the csv file. For example:
+
+  Hi $name,
+  how are you?
+
+in the csv file you need to have the columns: mail, name
+Note: the 'mail' column is mandatory.
