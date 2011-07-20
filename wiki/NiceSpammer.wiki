@@ -27,9 +27,9 @@ The system is composed of some popular python modules. The initial specification
 
       * Generate email from text and html (embed css, images...)
       * Add receiver addresses from DB (csv file with 'email' column)
-      * cli 
+      * cli
 
-    -> reflab.newsletter.mailgenerator
+    -> nicespammer.mailgenerator
 
 *Authoring*
 
@@ -41,17 +41,18 @@ The system is composed of some popular python modules. The initial specification
     -> zope, plone, grok, django...
 
 *Channel manager*
-   
+
     We think this feature must be provided through the web interface.
-     
+
       * Add channel
       * Remove channel
-   
+
     -> none
 
 *Users*
 
-    Email/Subscriber manager: managed through the web interface, must generate a csv file with email address
+    Email/Subscriber manager: managed through the web interface, must generate
+    a csv file with email address
 
      * Add subscriber
      * Remove subscriber
@@ -59,8 +60,16 @@ The system is composed of some popular python modules. The initial specification
 
     -> zope, plone, grok, django...
 
-*Stats*
+*Statistics*
 
-      Stats manager: it trace who has open the newsletter with a link in the email (eg. a 1px image)
+      Statistics manager: it trace who has open the newsletter with a link in
+      the email (eg. a 1px image).
+      It will be composed by three modules:
 
-    -> none
+        * catcher: a web service based on wsgi (
+        * stats: a module to manage the database (add newsletters, emails,
+        register clicks)
+        * report: return the aggregate data for newsletters, emails, single
+        newsletter and single email.
+
+    -> nicespammer.statistics
