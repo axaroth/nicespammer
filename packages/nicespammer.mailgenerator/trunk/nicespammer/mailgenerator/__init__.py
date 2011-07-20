@@ -181,7 +181,6 @@ class MailGenerator(object):
             mail  = '##To:%s\n'%email
             mail += mfrom
 
-            #mail += mail_template.replace('$newsletter_to_addr', email)
             mail += Template(mail_template).safe_substitute(
                       newsletter_to_addr=email,
                       **user)
