@@ -22,7 +22,8 @@ class Catcher(object):
 
         try:
             self.click(uri)
-        except:
+        except Exception, e:
+            print e
             start_response(
                 '404 Not Found', [('Content-type', 'text/html')])
             return ['Not a valid entry']
@@ -31,9 +32,10 @@ class Catcher(object):
         return self.image()
 
     def click(self, uri):
-        newsletter_id = int(uri[1])
-        email_id = int(uri[2])
+        _, newsletter_uuid, email_uuid, _ = uri
         s = stats.Stats(self.filename)
+        newsletter_id = s.getNewsletterIdFromUiid(newsletter_uuid)
+        email_id = s.getEmailIdFromUiid(email_uuid)
         s.click(newsletter_id, email_id)
 
     def image(self):

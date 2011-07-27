@@ -1,4 +1,5 @@
 import time
+import uuid
 from pysqlite2 import dbapi2 as sqlite3
 
 class Stats(object):
@@ -26,15 +27,30 @@ class Stats(object):
         else:
             return None
 
-    def addEmail(self, email):
+    def getEmailUiid(self, email):
+        self.cursor.execute('''
+            select email_uuid from emails where email==?''', (email,))
+        result = self.cursor.fetchone()
+        if result is not None:
+            return result[0]
+        else:
+            return None
+
+    def addEmail(self, email, email_uuid=None):
         email_id = self.getEmailId(email)
         if not email_id:
+            if email_uuid is None:
+                email_uuid = uuid.uuid4().hex
             self.cursor.execute('''
-                insert into emails (email) values (?)''', (email,))
+                insert into emails (email, email_uuid) values (?,?)''',
+                (email, email_uuid))
             self.cursor.execute('''select last_insert_rowid();''')
             email_id = self.cursor.fetchone()[0]
             self.conn.commit()
-        return email_id
+        else:
+            # do check if email and email_uuid are binded or update the uuid?
+            email_uuid = self.getEmailUiid(email)
+        return email_id, email_uuid
 
     def existsEmailId(self, email_id):
         self.cursor.execute('''
@@ -65,23 +81,33 @@ class Stats(object):
         else:
             return None
 
+    def getNewsletterUuid(self, newsletter_name):
+        self.cursor.execute('''
+            select newsletter_uuid from newsletters where newsletter_name==?''',
+            (newsletter_name,))
+        result = self.cursor.fetchone()
+        if result is not None:
+            return result[0]
+        else:
+            return None
+
     def addNewsletter(self, newsletter_name):
         newsletter_id = self.getNewsletterId(newsletter_name)
         if newsletter_id is not None:
             raise Exception('Exists')
         else:
+            newsletter_uuid = uuid.uuid4().hex
             self.cursor.execute('''
-                insert into newsletters (newsletter_name) values (?)''',
-                (newsletter_name,))
+                insert into newsletters (newsletter_name, newsletter_uuid) values (?,?)''',
+                (newsletter_name, newsletter_uuid))
             self.cursor.execute('''select last_insert_rowid();''')
             last = self.cursor.fetchone()[0]
             self.conn.commit()
-            return last
+            return last, newsletter_uuid
 
     def getNewsletterIds(self, email_id):
         self.cursor.execute('''
-            select newsletter_id from bindings
-            where email_id==?''',
+            select newsletter_id from bindings where email_id==?''',
             (email_id,))
         results = self.cursor.fetchall()
         if results is not None:
@@ -126,17 +152,35 @@ class Stats(object):
             (newsletter_id, email_id))
         self.conn.commit()
 
-    def image_tag(self, newsletter_id, email_id):
+    def image_tag(self, newsletter_uuid, email_uuid):
         return """<img alt="" src="%s/%s/%s/1.png" width=1 height=1>"""% \
-            (self.catcher_url, newsletter_id, email_id)
+            (self.catcher_url, newsletter_uuid, email_uuid)
 
-    def addImage(self, html, newsletter_id, email_id):
+    def addImage(self, html, newsletter_uuid, email_uuid):
         end_tag_pos = html.index('</body>')
         tmp = html[:end_tag_pos]
-        tmp += self.image_tag(newsletter_id, email_id)
+        tmp += self.image_tag(newsletter_uuid, email_uuid)
         tmp += html[end_tag_pos:]
         return tmp
 
+    def getNewsletterIdFromUiid(self, uuid):
+        self.cursor.execute('''
+            select newsletter_id from newsletters where newsletter_uuid=?''',
+            (uuid,))
+        result = self.cursor.fetchone()
+        if result is not None:
+            return result[0]
+        else:
+            raise Exception('invalid newsletter uuid')
+
+    def getEmailIdFromUiid(self, uuid):
+        self.cursor.execute('''
+            select email_id from emails where email_uuid=?''', (uuid,))
+        result = self.cursor.fetchone()
+        if result is not None:
+            return result[0]
+        else:
+            raise Exception('invalid email uuid')
 
     def clicksFor(self, newsletter_id, email_id):
         self.cursor.execute('''
@@ -147,10 +191,10 @@ class Stats(object):
     def click(self, newsletter_id, email_id):
 
         if not self.existsNewsletterId(newsletter_id):
-            raise Exception('invalid newsletter')
+            raise Exception('invalid newsletter id')
 
         if not self.existsEmailId(email_id):
-            raise Exception('invalid email')
+            raise Exception('invalid email id')
 
         if not newsletter_id in self.getNewsletterIds(email_id):
             raise Exception('email not bound to newsletter')
