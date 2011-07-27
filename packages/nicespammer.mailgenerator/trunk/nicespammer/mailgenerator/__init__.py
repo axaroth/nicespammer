@@ -93,13 +93,19 @@ class MailGenerator(object):
 
         return mail
 
-    def generate_mail_with_stats(self, newsletter, email):
+    def generate_mail_with_stats(self, newsletter, email, user):
         """ """
         s =  stats.Stats(self.db_path, self.catcher_url)
-        email_id = s.addEmail(email)
+
+        email_id, email_uuid = s.addEmail(email, user.get('uuid', None))
+        if not user.has_key('uuid'):
+            user['uuid'] = email_uuid
+
         newsletter_id = s.getNewsletterId(newsletter)
         if newsletter_id is None:
-            newsletter_id = s.addNewsletter(newsletter)
+            newsletter_id, newsletter_uuid = s.addNewsletter(newsletter)
+        else:
+            newsletter_uuid = s.getNewsletterUuid(newsletter)
         s.bindMail(email_id, newsletter_id)
 
         mfrom = self.config.get('default', 'mfrom')
@@ -117,7 +123,7 @@ class MailGenerator(object):
             html_path = self.config.get('default', 'html', None)
             html = open(os.path.join(self.newsletter_path, html_path), 'r').read()
             html_mail = stoneagehtml.compactify(html).decode('utf-8')
-            html_mail = s.addImage(html_mail, newsletter_id, email_id)
+            html_mail = s.addImage(html_mail, newsletter_uuid, email_uuid)
         else:
             html_mail = None
 
@@ -176,7 +182,10 @@ class MailGenerator(object):
         for user in users:
             email = user['mail']
             if add_stats:
-                mail_template = unicode(self.generate_mail_with_stats(newsletter, email))
+                mail_template = unicode(self.generate_mail_with_stats(
+                                                  newsletter,
+                                                  email,
+                                                  user))
 
             mail  = '##To:%s\n'%email
             mail += mfrom
