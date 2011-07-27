@@ -8,12 +8,16 @@ def creation(path='./example.db'):
     # Table Emails
     c.execute('''
         create table emails
-        (email_id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT)''')
+        (email_id INTEGER PRIMARY KEY AUTOINCREMENT,
+         email_uuid TEXT,
+         email TEXT)''')
 
     # Table Newsletters
     c.execute('''
         create table newsletters
-        (newsletter_id INTEGER PRIMARY KEY AUTOINCREMENT, newsletter_name TEXT)''')
+        (newsletter_id INTEGER PRIMARY KEY AUTOINCREMENT,
+         newsletter_uuid TEXT,
+         newsletter_name TEXT)''')
 
     # Table Bindings
     c.execute('''
@@ -31,6 +35,6 @@ def creation(path='./example.db'):
 
 def main():
     creation(sys.argv[1])
-    
+
 if __name__=='__main__':
     main()
